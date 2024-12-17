@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { backendURL } from './url';
 
 const EmployeeList = () => {
     const [employees, setEmployees] = useState([]);
@@ -9,7 +10,7 @@ const EmployeeList = () => {
     // Fetch employees
     const fetchEmployees = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/get-employees');
+            const response = await axios.get(`${backendURL}/get-employees`);
             setEmployees(response.data);
         } catch (err) {
             setError('Failed to fetch employees');
@@ -28,7 +29,7 @@ const EmployeeList = () => {
 
     const handleDelete = async (employee) => {
         try {
-            await axios.delete(`http://localhost:5000/delete-employee/${employee.employee_id}`);
+            await axios.delete(`${backendURL}/delete-employee/${employee.employee_id}`);
             fetchEmployees(); // Refresh the list
         } catch (err) {
             setError('Failed to delete employee');
@@ -49,7 +50,7 @@ const EmployeeList = () => {
     // Save edited employee
     const handleSave = async () => {
         try {
-            await axios.put(`http://localhost:5000/update-employee/${editingEmployee.employee_id}`, editingEmployee);
+            await axios.put(`${backendURL}/update-employee/${editingEmployee.employee_id}`, editingEmployee);
             fetchEmployees(); // Refresh the list
             setEditingEmployee(null);
         } catch (err) {

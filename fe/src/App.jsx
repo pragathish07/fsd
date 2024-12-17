@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import EmployeeList from "./EmployeeList";
+import { backendURL } from "./url";
 
 const departments = ["HR", "Engineering", "Marketing"];
 const countryCodes = [
@@ -69,7 +70,7 @@ function App() {
     // Submit to backend
     try {
       const res = await axios.post(
-        "http://localhost:5000/add-employee",
+          `${backendURL}/add-employee`,
         formData,
       );
       setMessage(res.data);

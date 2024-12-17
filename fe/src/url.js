@@ -1,0 +1,1 @@
+export const backendURL = "https://fsd-8yyf.onrender.com"
