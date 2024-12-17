@@ -8,12 +8,10 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - DB_HOST=mysql
-      - DB_USER=root
-      - DB_PASSWORD=rootpassword
-      - DB_NAME=employee_db
-    depends_on:
-      - mysql
+      - DB_HOST=boovkd434xr0zfz4t0mu-mysql.services.clever-cloud.com
+      - DB_USER=ufiog8sb8qoqwfor
+      - DB_PASSWORD=cVuFz7kXWKbG1LTkf7EK
+      - DB_NAME=boovkd434xr0zfz4t0mu
     networks:
       - employee-app-network
 
@@ -28,21 +26,6 @@ services:
     networks:
       - employee-app-network
 
-  mysql:
-    image: mysql:8.0
-    environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
-      - MYSQL_DATABASE=employee_db
-    volumes:
-      - mysql-data:/var/lib/mysql
-      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
-    ports:
-      - "3306:3306"
-    networks:
-      - employee-app-network
-
-volumes:
-  mysql-data:
 
 networks:
   employee-app-network:

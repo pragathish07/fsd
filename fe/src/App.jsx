@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import EmployeeList from "./EmployeeList";
 import { backendURL } from "./url";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const departments = ["HR", "Engineering", "Marketing"];
 const countryCodes = [
@@ -39,10 +41,21 @@ function App() {
 
     // Frontend validation
     const newError = {};
-    if (!formData.name) newError.name = "Name is required.";
-    if (!formData.employee_id)
+    if (!formData.name){
+      newError.name = "Name is required.";
+      toast.error(newError.name);
+    }
+    if (!formData.employee_id){
       newError.employee_id = "Employee ID is required.";
-    if (!formData.email.includes("@")) newError.email = "Invalid email.";
+      toast.error(newError.employee_id);
+
+    }
+    if (!formData.email.includes("@")){
+      newError.email = "Invalid email.";
+      toast.error(newError.email);
+      
+    }
+
 
     // Validate phone number based on selected country code
     const selectedCountry = countryCodes.find(
@@ -50,17 +63,25 @@ function App() {
     );
     if (!selectedCountry.regex.test(formData.phone_number)) {
       newError.phone_number = `Invalid phone number for ${selectedCountry.country}`;
+      toast.error(newError.phone_number);
     }
 
-    if (!formData.department) newError.department = "Department is required.";
+    if (!formData.department) {
+      newError.department = "Department is required.";
+      toast.error(newError.department);
+    }
     if (
       !formData.date_of_joining ||
       new Date(formData.date_of_joining) >
         new Date(new Date().setDate(new Date().getDate() + 1))
     ) {
       newError.date_of_joining = "Date is required";
+      toast.error(newError.date_of_joining);
     }
-    if (!formData.role) newError.role = "Role is required.";
+    if (!formData.role) {
+      newError.role = "Role is required.";
+      toast.error(newError.role);
+    }
 
     if (Object.keys(newError).length > 0) {
       setError(newError);
@@ -74,6 +95,7 @@ function App() {
         formData,
       );
       setMessage(res.data);
+      toast.success("Employee added successfully!");
       setFormData({
         name: "",
         employee_id: "",
@@ -84,7 +106,9 @@ function App() {
         date_of_joining: "",
         role: "",
       });
+      
     } catch (err) {
+      toast.error("Failed to add employee!");
       setMessage(err.response.data);
     }
   };
@@ -97,6 +121,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4">
+      <ToastContainer />
       <div className="max-w-2xl mx-auto bg-white shadow-md rounded-lg overflow-hidden">
         <div className="bg-blue-600 text-white text-center py-4">
           <h1 className="text-3xl font-bold">Employee Management System</h1>

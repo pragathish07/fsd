@@ -1,20 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { backendURL } from './url';
+import { toast } from 'react-toastify';
 
 const EmployeeList = () => {
     const [employees, setEmployees] = useState([]);
     const [editingEmployee, setEditingEmployee] = useState(null);
     const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     // Fetch employees
-    const fetchEmployees = async () => {
+ const fetchEmployees = async () => {
         try {
+            setIsLoading(true);
             const response = await axios.get(`${backendURL}/get-employees`);
             setEmployees(response.data);
         } catch (err) {
             setError('Failed to fetch employees');
             console.error(err);
+        }finally {
+            setIsLoading(false);
         }
     };
 
@@ -31,6 +36,7 @@ const EmployeeList = () => {
         try {
             await axios.delete(`${backendURL}/delete-employee/${employee.employee_id}`);
             fetchEmployees(); // Refresh the list
+            toast.success("Employee deleted successfully!");
         } catch (err) {
             setError('Failed to delete employee');
             console.error(err);
@@ -51,7 +57,8 @@ const EmployeeList = () => {
     const handleSave = async () => {
         try {
             await axios.put(`${backendURL}/update-employee/${editingEmployee.employee_id}`, editingEmployee);
-            fetchEmployees(); // Refresh the list
+            fetchEmployees();
+            toast.success("Employee details edited successfullt")
             setEditingEmployee(null);
         } catch (err) {
             setError('Failed to update employee');
@@ -64,6 +71,7 @@ const EmployeeList = () => {
         setEditingEmployee(null);
     };
 
+    if (isLoading) return <div>Loading employees...</div>;
     if (error) return <div className="text-red-500">Error: {error}</div>;
 
     return (
