@@ -8,10 +8,10 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - DB_HOST=boovkd434xr0zfz4t0mu-mysql.services.clever-cloud.com
-      - DB_USER=ufiog8sb8qoqwfor
-      - DB_PASSWORD=cVuFz7kXWKbG1LTkf7EK
-      - DB_NAME=boovkd434xr0zfz4t0mu
+      - DB_HOST=localhost
+      - DB_USER=root
+      - DB_PASSWORD=password
+      - DB_NAME=employees
     networks:
       - employee-app-network
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import EmployeeList from "./EmployeeList";
 import { backendURL } from "./url";
@@ -10,7 +10,6 @@ const countryCodes = [
   { code: "+91", country: "India", regex: /^\d{10}$/ },
   { code: "+1", country: "USA", regex: /^\d{10}$/ },
   { code: "+44", country: "UK", regex: /^\d{10}$/ },
-  { code: "+69", country: "Kailasa", regex: /^\d{9}$/ },
 ];
 
 function App() {
@@ -25,9 +24,26 @@ function App() {
     role: "",
   });
 
+  const [employees, setEmployees] = useState([]);
   const [error, setError] = useState({});
   const [message, setMessage] = useState("");
-  const [value, setValue] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchEmployees = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get(`${backendURL}/get-employees`);
+      setEmployees(response.data);
+    } catch (err) {
+      toast.error('Failed to fetch employees');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,16 +64,12 @@ function App() {
     if (!formData.employee_id){
       newError.employee_id = "Employee ID is required.";
       toast.error(newError.employee_id);
-
     }
     if (!formData.email.includes("@")){
       newError.email = "Invalid email.";
       toast.error(newError.email);
-      
     }
 
-
-    // Validate phone number based on selected country code
     const selectedCountry = countryCodes.find(
       (cc) => cc.code === formData.country_code,
     );
@@ -88,14 +100,17 @@ function App() {
       return;
     }
 
-    // Submit to backend
     try {
-      const res = await axios.post(
-          `${backendURL}/add-employee`,
-        formData,
-      );
-      setMessage(res.data);
-      toast.success("Employee added successfully!");
+      const res = await axios.post(`${backendURL}/add-employee`, formData);
+      if (typeof res.data === 'object') {
+        setMessage(res.data.message || 'Employee added successfully');
+        toast.success('Employee added successfully');
+      } else {
+        setMessage(res.data);
+        toast.success('employee added successfully');
+      }
+    
+     
       setFormData({
         name: "",
         employee_id: "",
@@ -107,11 +122,14 @@ function App() {
         role: "",
       });
       
+      await fetchEmployees();
     } catch (err) {
-      toast.error("Failed to add employee!");
-      setMessage(err.response.data);
+      
+      const errorMessage = err.response?.data?.message || err.response?.data || "Failed to add employee";
+      setMessage(errorMessage);
     }
   };
+
 
   const getMaxDate = () => {
     const today = new Date();
@@ -283,8 +301,8 @@ function App() {
           </div>
 
           {/* Message Display */}
-          {message && (
-            <div className={`mt-4 p-3 rounded-md text-center`}>
+          {typeof message === 'string' && message && (
+            <div className="mt-4 p-3 rounded-md text-center">
               {message}
             </div>
           )}
@@ -292,7 +310,12 @@ function App() {
       </div>
 
       <div className="max-w-4xl mx-auto mt-8">
-        <EmployeeList />
+      <EmployeeList 
+          employees={employees} 
+          setEmployees={setEmployees}
+          fetchEmployees={fetchEmployees}
+          isLoading={isLoading}
+        />
       </div>
     </div>
   );

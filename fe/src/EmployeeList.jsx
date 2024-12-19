@@ -3,48 +3,27 @@ import axios from 'axios';
 import { backendURL } from './url';
 import { toast } from 'react-toastify';
 
-const EmployeeList = () => {
-    const [employees, setEmployees] = useState([]);
+const EmployeeList = ({ employees, fetchEmployees, isLoading }) => {
     const [editingEmployee, setEditingEmployee] = useState(null);
     const [error, setError] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
 
-    // Fetch employees
- const fetchEmployees = async () => {
-        try {
-            setIsLoading(true);
-            const response = await axios.get(`${backendURL}/get-employees`);
-            setEmployees(response.data);
-        } catch (err) {
-            setError('Failed to fetch employees');
-            console.error(err);
-        }finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchEmployees();
-    }, []);
-
-    // Handle edit initiation
     const handleEdit = (employee) => {
         setEditingEmployee({...employee});
     };
 
     const handleDelete = async (employee) => {
-        try {
-            await axios.delete(`${backendURL}/delete-employee/${employee.employee_id}`);
-            fetchEmployees(); // Refresh the list
-            toast.success("Employee deleted successfully!");
-        } catch (err) {
-            setError('Failed to delete employee');
-            console.error(err);
+        if (window.confirm('Are you sure you want to delete this employee?')) {
+            try {
+                await axios.delete(`${backendURL}/delete-employee/${employee.employee_id}`);
+                await fetchEmployees(); 
+                toast.success("Employee deleted successfully!");
+            } catch (err) {
+                toast.error('Failed to delete employee');
+                console.error(err);
+            }
         }
     };
 
-
-    
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setEditingEmployee(prev => ({
@@ -53,26 +32,33 @@ const EmployeeList = () => {
         }));
     };
 
-    // Save edited employee
     const handleSave = async () => {
         try {
             await axios.put(`${backendURL}/update-employee/${editingEmployee.employee_id}`, editingEmployee);
-            fetchEmployees();
-            toast.success("Employee details edited successfullt")
+            await fetchEmployees(); // Use the passed down fetch function
+            toast.success("Employee details updated successfully!");
             setEditingEmployee(null);
         } catch (err) {
-            setError('Failed to update employee');
+            toast.error('Failed to update employee');
             console.error(err);
         }
     };
 
-    // Cancel editing
     const handleCancel = () => {
         setEditingEmployee(null);
     };
 
-    if (isLoading) return <div>Loading employees...</div>;
-    if (error) return <div className="text-red-500">Error: {error}</div>;
+    if (isLoading) return (
+        <div className="flex justify-center items-center p-4">
+            <div className="text-lg font-semibold">Loading employees...</div>
+        </div>
+    );
+
+    if (error) return (
+        <div className="flex justify-center items-center p-4">
+            <div className="text-red-500 text-lg font-semibold">{error}</div>
+        </div>
+    );
 
     return (
         <div className="p-4">
